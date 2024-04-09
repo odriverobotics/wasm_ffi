@@ -175,6 +175,16 @@ class IntPtr extends NativeType {}
 @notConstructible
 class UintPtr extends NativeType {}
 
+/// The C `size_t` type.
+///
+/// The [Size] type is a native type, and should not be constructed in
+/// Dart code.
+/// It occurs only in native type signatures and as annotation on [Struct] and
+/// [Union] fields.
+@sealed
+@notConstructible
+class Size extends NativeType {}
+
 /// Represents a native bool in C.
 ///
 /// Bool is not constructible in the Dart code and serves

@@ -11,6 +11,7 @@ String typeString<T>() => _extractType<T>().toString();
 // they are treated like types (which are written with a captial letter in dart).
 final Type Pointer_IntPtr = _extractType<Pointer<IntPtr>>();
 final Type Pointer_UintPtr = _extractType<Pointer<UintPtr>>();
+final Type Pointer_Size = _extractType<Pointer<Size>>();
 final Type Pointer_Void = _extractType<Pointer<Void>>();
 final Type Pointer_Bool = _extractType<Pointer<Bool>>();
 final Type Pointer_Int = _extractType<Pointer<Int>>();
@@ -30,6 +31,7 @@ final Type Pointer_Float = _extractType<Pointer<Float>>();
 final Type Pointer_Opaque = _extractType<Pointer<Opaque>>();
 final Type Pointer_Pointer_IntPtr = _extractType<Pointer<Pointer<IntPtr>>>();
 final Type Pointer_Pointer_UintPtr = _extractType<Pointer<Pointer<UintPtr>>>();
+final Type Pointer_Pointer_Size = _extractType<Pointer<Pointer<Size>>>();
 final Type Pointer_Pointer_Void = _extractType<Pointer<Pointer<Void>>>();
 final Type Pointer_Pointer_Bool = _extractType<Pointer<Pointer<Bool>>>();
 final Type Pointer_Pointer_Int = _extractType<Pointer<Pointer<Int>>>();

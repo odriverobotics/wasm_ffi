@@ -38,6 +38,8 @@ class Memory implements Allocator {
   static void init([int pointerSizeBytes = 4]) {
     _registerType<Float>(4);
     _registerType<Double>(8);
+    _registerType<Int>(4);
+    _registerType<UnsignedInt>(4);
     _registerType<Int8>(1);
     _registerType<Uint8>(1);
     _registerType<Int16>(2);
@@ -49,6 +51,9 @@ class Memory implements Allocator {
     _registerType<Utf8>(1);
     _registerType<Char>(1);
     _registerType<IntPtr>(pointerSizeBytes);
+    _registerType<UintPtr>(pointerSizeBytes);
+    _registerType<Size>(pointerSizeBytes);
+    _registerType<Bool>(1);
     _registerType<Opaque>(pointerSizeBytes);
     registerNativeMarshallerType<Void>();
     registerNativeMarshallerType<NativeFunction<dynamic>>();

@@ -262,6 +262,25 @@ extension IntPtrPointer on Pointer<IntPtr> {
       : viewSingle(index).setUint32(0, value, Memory.endianess);
 }
 
+/// Extension on [Pointer] specialized for the type argument [Size].
+extension SizePointer on Pointer<Size> {
+  /// The 32-bit or 64-bit value at `address`.
+  int get value => this[0];
+  set value(int value) => this[0] = value;
+
+  /// Returns `true` if the size of a pointer is 64-bit, `false` otherwise.
+  @extra
+  bool get is64Bit => size == 8;
+
+  /// The 32-bit or 64-bit integer at `address + size * index`.
+  int operator [](int index) => is64Bit
+      ? viewSingle(index).getUint64(0, Memory.endianess)
+      : viewSingle(index).getUint32(0, Memory.endianess);
+  void operator []=(int index, int value) => is64Bit
+      ? viewSingle(index).setUint64(0, value, Memory.endianess)
+      : viewSingle(index).setUint32(0, value, Memory.endianess);
+}
+
 /// Extension on [Pointer] specialized for the type argument [Pointer].
 extension PointerPointer<T extends NativeType> on Pointer<Pointer<T>> {
   /// The pointer at `address`.

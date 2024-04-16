@@ -14,6 +14,11 @@ external Object get _globalThis;
 @JS('Object.entries')
 external List? _entries(Object? o);
 
+@JS('WebAssembly.Global')
+class WasmGlobal {
+  external Object get value;
+}
+
 @JS()
 @anonymous
 class _EmscriptenModuleJs {
@@ -125,13 +130,17 @@ class EmscriptenModule extends Module {
         for (dynamic entry in entries) {
           if (entry is List) {
             Object value = entry.last;
-            if (value is int) {
-              Global g = Global(address: value, name: entry.first as String);
-              if (knownAddresses.containsKey(value) &&
-                  knownAddresses[value] is! Global) {
-                throw StateError(_adu(knownAddresses[value], g));
+            // TODO: Not sure if `value` can ever be `int` directly. I only
+            // observed it being WebAssembly.Global for globals.
+            if (value is int || ((value is WasmGlobal) && value.value is int)) {
+              final int address =
+                  (value is int) ? value : ((value as WasmGlobal).value as int);
+              Global g = Global(address: address, name: entry.first as String);
+              if (knownAddresses.containsKey(address) &&
+                  knownAddresses[address] is! Global) {
+                throw StateError(_adu(knownAddresses[address], g));
               }
-              knownAddresses[value] = g;
+              knownAddresses[address] = g;
               exports.add(g);
             } else if (value is Function) {
               FunctionDescription description =

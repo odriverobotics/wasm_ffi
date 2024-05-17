@@ -80,10 +80,10 @@ class EmscriptenModule extends Module {
   /// Documentation is in `emscripten_module_stub.dart`!
   static Future<EmscriptenModule> process(String moduleName) async {
     Function moduleFunction = _moduleFunction(moduleName);
-    _EmscriptenModuleJs module = _EmscriptenModuleJs();
-    Object? o = moduleFunction(module);
+    _EmscriptenModuleJs modulePrototype = _EmscriptenModuleJs();
+    Object? o = moduleFunction(modulePrototype);
     if (o != null) {
-      await promiseToFuture(o);
+      final module = await promiseToFuture<_EmscriptenModuleJs>(o);
       return EmscriptenModule._fromJs(module);
     } else {
       throw StateError('Could not instantiate an emscripten module!');
@@ -94,11 +94,12 @@ class EmscriptenModule extends Module {
   static Future<EmscriptenModule> compile(
       Uint8List wasmBinary, String moduleName, {void Function(_EmscriptenModuleJs)? preinit}) async {
     Function moduleFunction = _moduleFunction(moduleName);
-    _EmscriptenModuleJs module = _EmscriptenModuleJs(wasmBinary: wasmBinary);
-    Object? o = moduleFunction(module);
-    preinit?.call(module);
+    _EmscriptenModuleJs modulePrototype =
+        _EmscriptenModuleJs(wasmBinary: wasmBinary);
+    Object? o = moduleFunction(modulePrototype);
     if (o != null) {
-      await promiseToFuture(o);
+      final module = await promiseToFuture<_EmscriptenModuleJs>(o);
+      preinit?.call(module);
       return EmscriptenModule._fromJs(module);
     } else {
       throw StateError('Could not instantiate an emscripten module!');

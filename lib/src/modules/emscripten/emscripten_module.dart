@@ -19,6 +19,11 @@ class WasmGlobal {
   external Object get value;
 }
 
+@JS('WebAssembly.Memory')
+class WasmMemory {
+  external ByteBuffer get buffer;
+}
+
 @JS()
 @anonymous
 class _EmscriptenModuleJs {
@@ -109,6 +114,7 @@ class EmscriptenModule extends Module {
   final _EmscriptenModuleJs _emscriptenModuleJs;
   final List<WasmSymbol> _exports;
   final Table? indirectFunctionTable;
+  final ByteBuffer _heap;
   final _Malloc _malloc;
   final _Free _free;
 
@@ -116,10 +122,11 @@ class EmscriptenModule extends Module {
   List<WasmSymbol> get exports => _exports;
 
   EmscriptenModule._(
-      this._emscriptenModuleJs, this._exports, this.indirectFunctionTable, this._malloc, this._free);
+      this._emscriptenModuleJs, this._exports, this.indirectFunctionTable, this._heap, this._malloc, this._free);
 
   factory EmscriptenModule._fromJs(_EmscriptenModuleJs module) {
     Object? asm = module.wasmExports ?? module.asm;
+    ByteBuffer? heap = null;
     if (asm != null) {
       Map<int, WasmSymbol> knownAddresses = {};
       _Malloc? malloc;
@@ -166,7 +173,8 @@ class EmscriptenModule extends Module {
             } else if (value is Table && entry.first as String == "__indirect_function_table") {
               indirectFunctionTable = value;
             } else if (entry.first as String == "memory") {
-              // ignore memory object
+              assert (value is WasmMemory);
+              heap ??= (value as WasmMemory).buffer;
             } else {
               print(
                   'Warning: Unexpected value in entry list! Entry is $entry, value is $value (of type ${value.runtimeType})');
@@ -177,7 +185,8 @@ class EmscriptenModule extends Module {
         }
         if (malloc != null) {
           if (free != null) {
-            return EmscriptenModule._(module, exports, indirectFunctionTable, malloc, free);
+            assert(heap != null, 'Heap not found in module exports.');
+            return EmscriptenModule._(module, exports, indirectFunctionTable, heap!, malloc, free);
           } else {
             throw StateError('Module does not export the free function!');
           }
@@ -198,15 +207,7 @@ class EmscriptenModule extends Module {
   void free(int pointer) => _free(pointer);
 
   @override
-  ByteBuffer get heap => _getHeap();
-  ByteBuffer _getHeap() {
-    Uint8List? h = _emscriptenModuleJs.HEAPU8;
-    if (h != null) {
-      return h.buffer;
-    } else {
-      throw StateError('Unexpected memory error!');
-    }
-  }
+  ByteBuffer get heap => _heap;
 
   @override
   int malloc(int size) => _malloc(size);
